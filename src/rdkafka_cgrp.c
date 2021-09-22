@@ -39,6 +39,7 @@
 #include "rdmap.h"
 
 #include "rdunittest.h"
+#include "rdwilldev.h"
 
 #include <ctype.h>
 #include <stdarg.h>

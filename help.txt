@@ -1,0 +1,3 @@
+generated compile_commands.json:
+1) cmake -H. -B_cmake_build
+2) cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --build _cmake_build

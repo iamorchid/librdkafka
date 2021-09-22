@@ -65,6 +65,7 @@ set(
     tinycthread.c
     tinycthread_extra.c
     rdxxhash.c
+    rdwilldev.c
 )
 
 if(WITH_SSL)
