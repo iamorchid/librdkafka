@@ -464,10 +464,16 @@ rd_kafka_topic_t *rd_kafka_topic_new0 (rd_kafka_t *rk,
 	/* Create unassigned partition */
 	rkt->rkt_ua = rd_kafka_toppar_new(rkt, RD_KAFKA_PARTITION_UA);
 
+	// link the newly created rd_kafka_topic_t to rd_kafka_t
 	TAILQ_INSERT_TAIL(&rk->rk_topics, rkt, rkt_link);
 	rk->rk_topic_cnt++;
 
         /* Populate from metadata cache. */
+	//
+	// Normally, we won't have metadata for topic that's not found locally 
+	// as the metadata request is populated based on local topics. See more 
+	// details in rd_kafka_topic_scan_all. --Will
+	//
         if ((rkmce = rd_kafka_metadata_cache_find(rk, topic, 1/*valid*/)) &&
             !rkmce->rkmce_mtopic.err) {
                 if (existing)
@@ -785,6 +791,9 @@ static int rd_kafka_topic_partition_cnt_update (rd_kafka_topic_t *rkt,
 
                         rktp = rd_kafka_toppar_desired_get(rkt, i);
                         if (rktp) {
+				// Note that RD_KAFKA_TOPPAR_F_DESIRED would 
+				// be kept (to indicate that the partition is 
+				// desired by a consumer) --Will
 				rd_kafka_toppar_lock(rktp);
                                 rktp->rktp_flags &=
                                         ~(RD_KAFKA_TOPPAR_F_UNKNOWN |
@@ -825,6 +834,8 @@ static int rd_kafka_topic_partition_cnt_update (rd_kafka_topic_t *rkt,
         }
 
 	/* Remove excessive partitions */
+	// This should only happens after we delete a topic and create a new one 
+	// with less number of partitions. --Will
 	for (i = partition_cnt ; i < rkt->rkt_partition_cnt ; i++) {
 		rktp = rkt->rkt_p[i];
 

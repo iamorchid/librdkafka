@@ -36,6 +36,7 @@
 #include <signal.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
 
 /* Typical include path would be <librdkafka/rdkafka.h>, but this program
@@ -169,15 +170,19 @@ int main (int argc, char **argv) {
 
         /* Convert the list of topics to a format suitable for librdkafka */
         subscription = rd_kafka_topic_partition_list_new(topic_cnt);
-        for (i = 0 ; i < topic_cnt ; i++)
-                rd_kafka_topic_partition_list_add(subscription,
-                                                  topics[i],
-                                                  /* the partition is ignored
-                                                   * by subscribe() */
-                                                  RD_KAFKA_PARTITION_UA);
+        for (i = 0 ; i < topic_cnt ; i++) {
+		for (int j = 0; j < 4; j++) {
+			rd_kafka_topic_partition_list_add(subscription, topics[i], j)->offset = 3;
+		}
+        }
+	printf("now sleep 10 seconds\n");
+	sleep(10);
+
+	printf("assign topics\n");
 
         /* Subscribe to the list of topics */
-        err = rd_kafka_subscribe(rk, subscription);
+        // err = rd_kafka_subscribe(rk, subscription);
+	err = rd_kafka_assign(rk, subscription);
         if (err) {
                 fprintf(stderr,
                         "%% Failed to subscribe to %d topics: %s\n",
@@ -186,11 +191,6 @@ int main (int argc, char **argv) {
                 rd_kafka_destroy(rk);
                 return 1;
         }
-
-        fprintf(stderr,
-                "%% Subscribed to %d topic(s), "
-                "waiting for rebalance and messages...\n",
-                subscription->cnt);
 
         rd_kafka_topic_partition_list_destroy(subscription);
 
@@ -208,12 +208,10 @@ int main (int argc, char **argv) {
                 rd_kafka_message_t *rkm;
 
                 rkm = rd_kafka_consumer_poll(rk, 100);
-                if (!rkm)
-                        continue; /* Timeout: no message within 100ms,
-                                   *  try again. This short timeout allows
-                                   *  checking for `run` at frequent intervals.
-                                   */
-
+                if (!rkm) {
+                        continue;
+                }
+		
                 /* consumer_poll() will return either a proper message
                  * or a consumer error (rkm->err is set). */
                 if (rkm->err) {

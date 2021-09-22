@@ -1236,6 +1236,7 @@ static void rd_kafka_cgrp_rejoin (rd_kafka_cgrp_t *rkcg, const char *fmt, ...) {
                 rd_kafka_cgrp_leave_maybe(rkcg);
         }
 
+        rdbacktrace();
         rd_kafka_cgrp_set_join_state(rkcg, RD_KAFKA_CGRP_JOIN_STATE_INIT);
 }
 
@@ -2399,6 +2400,8 @@ static void rd_kafka_cgrp_join (rd_kafka_cgrp_t *rkcg) {
                    rkcg->rkcg_member_id ? rkcg->rkcg_member_id->str : "");
 
 
+	rdbacktrace();
+	
         rd_kafka_cgrp_set_join_state(rkcg, RD_KAFKA_CGRP_JOIN_STATE_WAIT_JOIN);
 
         rd_kafka_cgrp_set_wait_resp(rkcg, RD_KAFKAP_JoinGroup);
@@ -4648,6 +4651,9 @@ rd_kafka_cgrp_subscribe (rd_kafka_cgrp_t *rkcg,
                      rktparlist ? rktparlist->cnt : 0,
                      rd_kafka_cgrp_join_state_names[rkcg->rkcg_join_state]);
 
+	// If we don't have any assign strategy enabled, we don't support 
+	// subscription (for which, we need to perform partition assignment 
+	// based on group.id using some strategy).
         if (rkcg->rkcg_rk->rk_conf.enabled_assignor_cnt == 0)
                 return RD_KAFKA_RESP_ERR__INVALID_ARG;
 

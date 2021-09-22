@@ -618,6 +618,15 @@ void rd_kafka_toppar_desired_add0 (rd_kafka_toppar_t *rktp) {
         rktp->rktp_flags |= RD_KAFKA_TOPPAR_F_DESIRED;
 
         if (rktp->rktp_flags & RD_KAFKA_TOPPAR_F_UNKNOWN) {
+		// This means we don't have partition info in local metadata 
+		// yet. This could happen for the following cases:
+		// * we don't fetch topic metadata yet. And next metadata 
+		//   refresh would delegate this partition to correct leader 
+		//   broker if the partition is valid.
+		// * this desired partition is invalid for the topic. And 
+		//   next metadata refresh would clean such partitions. 
+		//   Also see rd_kafka_topic_partition_cnt_update.
+		// --Will
                 rd_kafka_dbg(rktp->rktp_rkt->rkt_rk, TOPIC, "DESIRED",
                      "%s [%"PRId32"]: adding to DESIRED list",
                      rktp->rktp_rkt->rkt_topic->str, rktp->rktp_partition);
@@ -2002,6 +2011,15 @@ rd_ts_t rd_kafka_toppar_fetch_decide (rd_kafka_toppar_t *rktp,
 	}
 
 	/* Skip toppars not in active fetch state */
+	//
+	// When a user subscribes or assigns some topics, all the partitions 
+	// whose broker leader is current broker would be registered in the 
+	// rkb->rkb_toppars. However, for current consumer, it could only be 
+	// assigned part of those partitions (those assigned ones would be 
+	// marked as RD_KAFKA_TOPPAR_F_DESIRED. And after its offset is prepared, 
+	// it would be also marked as RD_KAFKA_TOPPAR_FETCH_ACTIVE). See methods 
+	// rd_kafka_assignment_add rd_kafka_toppar_fetch_start. --Will
+	//
 	if (rktp->rktp_fetch_state != RD_KAFKA_TOPPAR_FETCH_ACTIVE) {
                 reason = "not in active fetch state";
 		should_fetch = 0;

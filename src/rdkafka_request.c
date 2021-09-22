@@ -44,6 +44,7 @@
 #include "rdstring.h"
 #include "rdunittest.h"
 
+#include "rdwilldev.h"
 
 /**
  * Kafka protocol request and response handling.
@@ -1964,6 +1965,8 @@ rd_kafka_MetadataRequest (rd_kafka_broker_t *rkb,
         int features;
         int topic_cnt = topics ? rd_list_cnt(topics) : 0;
         int *full_incr = NULL;
+
+	rdbacktrace();
 
         ApiVersion = rd_kafka_broker_ApiVersion_supported(rkb,
                                                           RD_KAFKAP_Metadata,

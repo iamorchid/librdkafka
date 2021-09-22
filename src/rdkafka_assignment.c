@@ -737,6 +737,16 @@ rd_kafka_assignment_add (rd_kafka_t *rk,
                  * This is to make sure the rktp stays alive while unassigning
                  * any previous assignment in the call to
                  * assignment_clear() below. */
+                //
+                // Here we add the assigned partition locally (and potentailly 
+                // create local topic info). If we don't have relevant topic 
+                // metadata yet, rd_kafka_topic_scan_all (called periodically
+                // in rd_kafka_1s_tmr_cb) would refresh/fetch metadata (and 
+                // add new broker during metadata parsing), associate the 
+                // assigned partitions with leader broker. The partitions added 
+                // here would be marked as RD_KAFKA_TOPPAR_F_DESIRED if we 
+                // don't have metadata fetched yet. --Will
+                //
                 rd_kafka_topic_partition_ensure_toppar(rk, rktpar,
                                                        rd_true);
         }
