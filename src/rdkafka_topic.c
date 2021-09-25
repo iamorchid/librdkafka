@@ -676,7 +676,6 @@ static int rd_kafka_toppar_leader_update (rd_kafka_topic_t *rkt,
                 r = 0;
 
         } else {
-
                 if (rktp->rktp_leader_id != leader_id ||
                     rktp->rktp_leader != leader) {
                         /* Update leader if it has changed */
@@ -791,7 +790,7 @@ static int rd_kafka_topic_partition_cnt_update (rd_kafka_topic_t *rkt,
 
                         rktp = rd_kafka_toppar_desired_get(rkt, i);
                         if (rktp) {
-				// Note that RD_KAFKA_TOPPAR_F_DESIRED would 
+				// Note that RD_KAFKA_TOPPAR_F_DESIRED flag would 
 				// be kept (to indicate that the partition is 
 				// desired by a consumer) --Will
 				rd_kafka_toppar_lock(rktp);

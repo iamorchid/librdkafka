@@ -38,7 +38,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-
+// This method looks not used internally. It's an API method 
+// that allows external user to fetch topic metadata. 
+// --Will
 rd_kafka_resp_err_t
 rd_kafka_metadata (rd_kafka_t *rk, int all_topics,
                    rd_kafka_topic_t *only_rkt,

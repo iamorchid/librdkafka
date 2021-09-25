@@ -624,8 +624,8 @@ void rd_kafka_toppar_desired_add0 (rd_kafka_toppar_t *rktp) {
 		//   refresh would delegate this partition to correct leader 
 		//   broker if the partition is valid.
 		// * this desired partition is invalid for the topic. And 
-		//   next metadata refresh would clean such partitions. 
-		//   Also see rd_kafka_topic_partition_cnt_update.
+		//   such partition would be kept in or moved to topic's 
+                //   desired list. See rd_kafka_topic_partition_cnt_update.
 		// --Will
                 rd_kafka_dbg(rktp->rktp_rkt->rkt_rk, TOPIC, "DESIRED",
                      "%s [%"PRId32"]: adding to DESIRED list",
@@ -641,6 +641,16 @@ void rd_kafka_toppar_desired_add0 (rd_kafka_toppar_t *rktp) {
  *
  * Locks: rd_kafka_topic_wrlock() must be held.
  */
+//
+// For partitions that are known in the cluster, they would be 
+// placed into rkt->rkt_p. And for other partitions desired by 
+// consumer, they are placed in rkt->rkt_desp. However, the flag 
+// RD_KAFKA_TOPPAR_F_DESIRED is used to indicate if a partition 
+// is desired by a consumer. Some partitions in rkt->rkt_p may 
+// not be enabled with this flag (when they are not assigned to 
+// this consumer). However, all partitions in rkt->rkt_desp should 
+// have this flag. --Will
+//
 rd_kafka_toppar_t *rd_kafka_toppar_desired_add (rd_kafka_topic_t *rkt,
                                                 int32_t partition) {
         rd_kafka_toppar_t *rktp;

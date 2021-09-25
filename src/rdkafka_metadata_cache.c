@@ -343,6 +343,12 @@ rd_kafka_metadata_cache_topic_update (rd_kafka_t *rk,
             mdt->err == RD_KAFKA_RESP_ERR_UNKNOWN_TOPIC_OR_PART)
                 rd_kafka_metadata_cache_insert(rk, mdt, now, ts_expires);
         else
+                // For temporary error, we don't cache the topic metadata. So 
+                // for each metadata request, if the topic is included, we 
+                // always query its info from broker. Otherwise, if we keep the 
+                // metadata in cache, we won't re-query its info before the 
+                // cache timeouts (see rd_kafka_cgrp_metadata_refresh).
+                // --Will
                 changed = rd_kafka_metadata_cache_delete_by_name(rk,
                                                                  mdt->topic);
 

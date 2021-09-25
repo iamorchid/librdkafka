@@ -104,6 +104,13 @@ int main (int argc, char **argv) {
          */
         conf = rd_kafka_conf_new();
 
+        if (rd_kafka_conf_set(conf, "debug", "broker,consumer,cgrp,topic,fetch",
+                              errstr, sizeof(errstr)) != RD_KAFKA_CONF_OK) {
+                fprintf(stderr, "%s\n", errstr);
+                rd_kafka_conf_destroy(conf);
+                return 1;
+        }
+
         /* Set bootstrap broker(s) as a comma-separated list of
          * host or host:port (default port 9092).
          * librdkafka will use the bootstrap brokers to acquire the full
@@ -168,21 +175,34 @@ int main (int argc, char **argv) {
         rd_kafka_poll_set_consumer(rk);
 
 
+        // /* Convert the list of topics to a format suitable for librdkafka */
+        // subscription = rd_kafka_topic_partition_list_new(topic_cnt);
+        // for (i = 0 ; i < topic_cnt ; i++) {
+	// 	for (int j = 0; j < 4; j++) {
+	// 		rd_kafka_topic_partition_list_add(subscription, topics[i], j)->offset = 3;
+	// 	}
+        // }
+	// printf("now sleep 10 seconds\n");
+	// sleep(10);
+
+	// printf("assign topics\n");
+	// err = rd_kafka_assign(rk, subscription);
+
+
         /* Convert the list of topics to a format suitable for librdkafka */
         subscription = rd_kafka_topic_partition_list_new(topic_cnt);
-        for (i = 0 ; i < topic_cnt ; i++) {
-		for (int j = 0; j < 4; j++) {
-			rd_kafka_topic_partition_list_add(subscription, topics[i], j)->offset = 3;
-		}
-        }
+        for (i = 0 ; i < topic_cnt ; i++)
+                rd_kafka_topic_partition_list_add(subscription,
+                                                  topics[i],
+                                                  /* the partition is ignored
+                                                   * by subscribe() */
+                                                  RD_KAFKA_PARTITION_UA);
 	printf("now sleep 10 seconds\n");
 	sleep(10);
 
-	printf("assign topics\n");
+	printf("subscribe topics\n");
+        err = rd_kafka_subscribe(rk, subscription);
 
-        /* Subscribe to the list of topics */
-        // err = rd_kafka_subscribe(rk, subscription);
-	err = rd_kafka_assign(rk, subscription);
         if (err) {
                 fprintf(stderr,
                         "%% Failed to subscribe to %d topics: %s\n",

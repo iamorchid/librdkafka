@@ -1966,7 +1966,7 @@ rd_kafka_MetadataRequest (rd_kafka_broker_t *rkb,
         int topic_cnt = topics ? rd_list_cnt(topics) : 0;
         int *full_incr = NULL;
 
-	rdbacktrace();
+	// rdbacktrace();
 
         ApiVersion = rd_kafka_broker_ApiVersion_supported(rkb,
                                                           RD_KAFKAP_Metadata,

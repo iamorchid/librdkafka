@@ -1,0 +1,16 @@
+Core functions:
+1) rd_kafka_thread_main
+   rd_kafka_q_serve
+   rd_kafka_cgrp_serve
+   rd_kafka_cgrp_op_serve
+   rd_kafka_cgrp_subscribe
+   rd_kafka_cgrp_join
+2) rd_kafka_broker_thread_main 
+   rd_kafka_broker_op_serve
+3) rd_kafka_MetadataRequest 
+   rd_kafka_parse_Metadata
+   rd_kafka_topic_metadata_update
+   rd_kafka_toppar_leader_update
+4) rd_kafka_cgrp_assign / rd_kafka_assignment_add / rd_kafkmakea_assignment_serve
+5) rd_kafka_topic_partition_ensure_toppar
+6) rd_kafka_1s_tmr_cb

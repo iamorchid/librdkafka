@@ -3172,8 +3172,12 @@ rd_bool_t rd_kafka_broker_op_serve (rd_kafka_broker_t *rkb,
                         rd_kafka_toppar_keep(rktp);
 
                         /* No, forward this op to the new next broker. */
-                        rd_kafka_q_enq(rktp->rktp_next_broker->rkb_ops, rko);
-                        rko = NULL;
+                        if (rktp->rktp_next_broker) {
+                                // The original code doesn't check the NULL here. But 
+                                // I think this is a bug. --Will
+                                rd_kafka_q_enq(rktp->rktp_next_broker->rkb_ops, rko);
+                                rko = NULL;
+                        }
 
                         rd_kafka_toppar_unlock(rktp);
                         rd_kafka_toppar_destroy(rktp);
@@ -6158,7 +6162,7 @@ rd_kafka_broker_update (rd_kafka_t *rk, rd_kafka_secproto_t proto,
                         rko = rd_kafka_op_new(RD_KAFKA_OP_NODE_UPDATE);
                         rd_strlcpy(rko->rko_u.node.nodename, nodename,
                                    sizeof(rko->rko_u.node.nodename));
-                        rko->rko_u.node.nodeid   = mdb->id;
+                        rko->rko_u.node.nodeid = mdb->id;
                         /* Perform a blocking op request so that all
                          * broker-related state, such as the rk broker list,
                          * is up to date by the time this call returns.
