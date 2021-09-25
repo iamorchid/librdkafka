@@ -39,7 +39,6 @@
 #include "rdmap.h"
 
 #include "rdunittest.h"
-#include "rdwilldev.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -1237,7 +1236,6 @@ static void rd_kafka_cgrp_rejoin (rd_kafka_cgrp_t *rkcg, const char *fmt, ...) {
                 rd_kafka_cgrp_leave_maybe(rkcg);
         }
 
-        rdbacktrace();
         rd_kafka_cgrp_set_join_state(rkcg, RD_KAFKA_CGRP_JOIN_STATE_INIT);
 }
 
@@ -2399,9 +2397,6 @@ static void rd_kafka_cgrp_join (rd_kafka_cgrp_t *rkcg) {
                    rkcg->rkcg_member_id ?
                    RD_KAFKAP_STR_LEN(rkcg->rkcg_member_id) : 0,
                    rkcg->rkcg_member_id ? rkcg->rkcg_member_id->str : "");
-
-
-	rdbacktrace();
 	
         rd_kafka_cgrp_set_join_state(rkcg, RD_KAFKA_CGRP_JOIN_STATE_WAIT_JOIN);
 
@@ -5535,6 +5530,29 @@ void rd_kafka_cgrp_metadata_update_check (rd_kafka_cgrp_t *rkcg,
          * Propagate consumer errors for any non-existent or errored topics.
          * The function takes ownership of errored.
          */
+        // 
+        // --Will
+        //
+        // Currently, if the topics in the subscription don't exist in the 
+        // cluster, they are totoally ignored even if they are created later.
+        // For function rd_kafka_topic_scan_all (periodically invoked by 
+        // rd_kafka_1s_tmr_cb), it only scan topics added locally. However, 
+        // only topics that have partitions assigned to local consumer would 
+        // be added locally. And for subscription case, the local topics is
+        // only subset of all topics in tinfos here (topics in tinfos would 
+        // be stored to rkcg->rkcg_subscribed_topics, which is used for join
+        // group request). 
+        // 
+        // However, if re-join is triggered and metadata cache for non-exist 
+        // topics exipres (see rd_kafka_cgrp_join), new metadata request for 
+        // those topics would be sent. Later the consumer would be aware of 
+        // those newly created topics.
+        // ----------------------------------------------------------------
+        //
+        // The comment above is not correct. There is a timer function called 
+        // rd_kafka_metadata_refresh_cb, which would refresh all topics in 
+        // subscription.
+        // 
         rd_kafka_propagate_consumer_topic_errors(
                 rkcg, errored, "Subscribed topic not available");
 

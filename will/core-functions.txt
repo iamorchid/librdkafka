@@ -11,6 +11,21 @@ Core functions:
    rd_kafka_parse_Metadata
    rd_kafka_topic_metadata_update
    rd_kafka_toppar_leader_update
+   rd_kafka_cgrp_metadata_update_check
 4) rd_kafka_cgrp_assign / rd_kafka_assignment_add / rd_kafkmakea_assignment_serve
 5) rd_kafka_topic_partition_ensure_toppar
 6) rd_kafka_1s_tmr_cb
+7) rd_kafka_metadata // invoked by application 
+
+
+rd_kafka_metadata_refresh_cb
+
+if (rk->rk_conf.stats_interval_ms)
+         rd_kafka_timer_start(&rk->rk_timers, &tmr_stats_emit,
+                              rk->rk_conf.stats_interval_ms * 1000ll,
+                              rd_kafka_stats_emit_tmr_cb, NULL);
+if (rk->rk_conf.metadata_refresh_interval_ms > 0)
+         rd_kafka_timer_start(&rk->rk_timers, &tmr_metadata_refresh,
+                              rk->rk_conf.metadata_refresh_interval_ms *
+                              1000ll,
+                              rd_kafka_metadata_refresh_cb, NULL);

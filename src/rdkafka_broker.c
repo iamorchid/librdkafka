@@ -1157,7 +1157,6 @@ void rd_kafka_broker_buf_enq_replyq (rd_kafka_broker_t *rkb,
 
 	if (thrd_is_current(rkb->rkb_thread)) {
 		rd_kafka_broker_buf_enq2(rkb, rkbuf);
-
 	} else {
 		rd_kafka_op_t *rko = rd_kafka_op_new(RD_KAFKA_OP_XMIT_BUF);
 		rko->rko_u.xbuf.rkbuf = rkbuf;

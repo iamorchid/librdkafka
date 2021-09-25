@@ -98,13 +98,12 @@ int main (int argc, char **argv) {
         topics    = &argv[3];
         topic_cnt = argc - 3;
 
-
         /*
          * Create Kafka client configuration place-holder
          */
         conf = rd_kafka_conf_new();
 
-        if (rd_kafka_conf_set(conf, "debug", "broker,consumer,cgrp,topic,fetch",
+        if (rd_kafka_conf_set(conf, "debug", "metadata,cgrp,topic", // "broker,consumer,cgrp,topic,fetch",
                               errstr, sizeof(errstr)) != RD_KAFKA_CONF_OK) {
                 fprintf(stderr, "%s\n", errstr);
                 rd_kafka_conf_destroy(conf);

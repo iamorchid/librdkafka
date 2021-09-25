@@ -1,8 +1,10 @@
-LIBSUBDIRS=	src src-cpp
+# LIBSUBDIRS=	src src-cpp
 
-CHECK_FILES+=	CONFIGURATION.md \
-		examples/rdkafka_example examples/rdkafka_performance \
-		examples/rdkafka_example_cpp
+LIBSUBDIRS=	src
+
+# CHECK_FILES+=	CONFIGURATION.md \
+# 		examples/rdkafka_example examples/rdkafka_performance \
+# 		examples/rdkafka_example_cpp
 
 DOC_FILES+=	LICENSE LICENSES.txt INTRODUCTION.md README.md \
 		CONFIGURATION.md STATISTICS.md CHANGELOG.md
@@ -26,15 +28,15 @@ include mklove/Makefile.base
 libs:
 	@(for d in $(LIBSUBDIRS); do $(MAKE) -C $$d || exit $?; done)
 
-CONFIGURATION.md: src/rdkafka.h examples
-	@printf "$(MKL_YELLOW)Updating $@$(MKL_CLR_RESET)\n"
-	@echo "# Configuration properties" > CONFIGURATION.md.tmp
-	@(examples/rdkafka_performance -X list | \
-		sed 's/||/\\|\\|/g' >> \
-		CONFIGURATION.md.tmp; \
-		cmp CONFIGURATION.md CONFIGURATION.md.tmp || \
-		mv -f CONFIGURATION.md.tmp CONFIGURATION.md; \
-		rm -f CONFIGURATION.md.tmp)
+# CONFIGURATION.md: src/rdkafka.h examples
+# 	@printf "$(MKL_YELLOW)Updating $@$(MKL_CLR_RESET)\n"
+# 	@echo "# Configuration properties" > CONFIGURATION.md.tmp
+# 	@(examples/rdkafka_performance -X list | \
+# 		sed 's/||/\\|\\|/g' >> \
+# 		CONFIGURATION.md.tmp; \
+# 		cmp CONFIGURATION.md CONFIGURATION.md.tmp || \
+# 		mv -f CONFIGURATION.md.tmp CONFIGURATION.md; \
+# 		rm -f CONFIGURATION.md.tmp)
 
 file-check: CONFIGURATION.md LICENSES.txt examples
 check: file-check

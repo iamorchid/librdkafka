@@ -44,8 +44,6 @@
 #include "rdstring.h"
 #include "rdunittest.h"
 
-#include "rdwilldev.h"
-
 /**
  * Kafka protocol request and response handling.
  * All of this code runs in the broker thread and uses op queues for
@@ -1563,6 +1561,15 @@ void rd_kafka_JoinGroupRequest (rd_kafka_broker_t *rkb,
         int16_t ApiVersion = 0;
         int features;
 
+        // --Will's debug
+        const rd_kafka_topic_info_t *ti;
+        int idx;
+        printf("JoinGroupRequest with topics: ");
+        RD_LIST_FOREACH(ti, topics, idx) {
+                printf("%s, ", ti->topic);
+        }
+        printf("\n");
+
         ApiVersion = rd_kafka_broker_ApiVersion_supported(rkb,
                                                           RD_KAFKAP_JoinGroup,
                                                           0, 5,
@@ -1965,8 +1972,6 @@ rd_kafka_MetadataRequest (rd_kafka_broker_t *rkb,
         int features;
         int topic_cnt = topics ? rd_list_cnt(topics) : 0;
         int *full_incr = NULL;
-
-	// rdbacktrace();
 
         ApiVersion = rd_kafka_broker_ApiVersion_supported(rkb,
                                                           RD_KAFKAP_Metadata,
