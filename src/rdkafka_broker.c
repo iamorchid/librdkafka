@@ -2092,6 +2092,41 @@ static int rd_ut_reconnect_backoff (void) {
         RD_UT_PASS();
 }
 
+static void rd_kafka_broker_map_addr(const char * mapping, char *nodename) {
+        const char *p;
+        char *np;
+        int src_name_len;
+
+        if (!mapping || strlen(mapping) <= 0) {
+                return;
+        }
+        printf("nodename: %s, mapping: %s\n", nodename, mapping);
+
+        src_name_len = strlen(nodename);
+
+        nodename[src_name_len + 0] = '-';
+        nodename[src_name_len + 1] = '>';
+        nodename[src_name_len + 2] = '\0';
+
+        p = strstr(mapping, nodename);
+
+        nodename[src_name_len] = '\0'; // recover
+        np = nodename;
+        
+        if (p && strlen(p) > (size_t)(src_name_len + 2)) {
+                p += src_name_len + 2; // skip source name and '->'
+
+                printf("map node name [%s]", nodename);
+                while (*p && *p != ',') {
+                        *np=*p;
+                        p++;
+                        np++;
+                }
+                *np='\0';
+                printf(" to [%s]\n", nodename);
+        }
+}
+
 
 /**
  * @brief Initiate asynchronous connection attempt to the next address
@@ -2135,6 +2170,8 @@ static int rd_kafka_broker_connect (rd_kafka_broker_t *rkb) {
 
         rd_kafka_broker_update_reconnect_backoff(rkb, &rkb->rkb_rk->rk_conf,
                                                  rd_clock());
+
+        rd_kafka_broker_map_addr(rkb->rkb_rk->rk_conf.broker_addr_mapping, nodename);
 
         if (rd_kafka_broker_resolve(rkb, nodename, reset_cached_addr) == -1)
                 return -1;

@@ -719,6 +719,12 @@ static const struct rd_kafka_property rd_kafka_properties[] = {
           .sdef = "0.10.0",
 	  .validate = rd_kafka_conf_validate_broker_version },
 
+        { _RK_GLOBAL|_RK_MED, "broker.addr.mapping", _RK_C_STR,
+	  _RK(broker_addr_mapping),
+	  "The mapping specifies how to translate broker address (useful if we" 
+          "need to access brokers in vpc). The format is something like: "
+          "sip1:sport1->tip1:tport1,sip2:sport2->tip2:tport2"},
+
 	/* Security related global properties */
 	{ _RK_GLOBAL|_RK_HIGH, "security.protocol", _RK_C_S2I,
 	  _RK(security_protocol),
