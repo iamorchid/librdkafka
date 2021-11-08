@@ -221,6 +221,7 @@ struct rd_kafka_conf_s {
 	int     api_version_request_timeout_ms;
 	int     api_version_fallback_ms;
 	char   *broker_version_fallback;
+        char   *broker_addr_mapping;
 	rd_kafka_secproto_t security_protocol;
 
         struct {
